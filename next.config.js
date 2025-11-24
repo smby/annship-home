@@ -3,7 +3,6 @@ const nextConfig = {
   reactStrictMode: true,
   output: 'export',
   basePath: '/annship-home',
-  assetPrefix: '/annship-home/',
   images: {
     unoptimized: true,
   },
