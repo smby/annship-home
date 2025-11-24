@@ -1,0 +1,11 @@
+node_modules
+dist/
+.tmp
+yarn.lock
+package-lock.json
+egwebsite.tar.gz
+.DS_Store
+.idea
+out
+.next
+log
