@@ -75,10 +75,10 @@ const Header = () => {
             </Link>
 
             <Link
-              href="https://annship.com/review-info"
+              href="/get-started"
               className="bg-primary hover:bg-primary-dark text-white px-5 py-2.5 rounded-lg font-semibold transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40"
             >
-              Get a Quote
+              Get Started
             </Link>
           </nav>
 
@@ -119,11 +119,11 @@ const Header = () => {
               Contact
             </Link>
             <Link
-              href="https://annship.com/review-info"
+              href="/get-started"
               className="block w-full text-center bg-primary text-white px-5 py-3 rounded-lg font-semibold mt-4"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Get a Quote
+              Get Started
             </Link>
           </div>
         </div>
