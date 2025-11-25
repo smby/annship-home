@@ -1,9 +1,21 @@
 import React, { useState } from 'react';
 import Layout from '../components/Layout';
-import { ArrowRight, Check, ChevronLeft, Plus, Package, Truck, Globe, Building2, User, Warehouse, X } from 'lucide-react';
+import { ArrowRight, Check, ChevronLeft, Plus, Package, Truck, Globe, Building2, User, Warehouse, X, Zap, Scale, Layers, Info, Feather, Box, Dumbbell, Container, UserX, UserCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Helper Components
+const FedExLogo = () => (
+    <img src="/annship-home/logos/fedex.png" alt="FedEx" className="h-8 w-auto object-contain" />
+);
+
+const UPSLogo = () => (
+    <img src="/annship-home/logos/ups.png" alt="UPS" className="h-8 w-auto object-contain" />
+);
+
+const USPSLogo = () => (
+    <img src="/annship-home/logos/usps.png" alt="USPS" className="h-8 w-auto object-contain" />
+);
+
 const SelectionCard = ({ selected, onClick, label, icon: Icon, className = "" }) => (
     <motion.div
         whileHover={{ y: -4, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)" }}
@@ -37,19 +49,35 @@ const SelectionCard = ({ selected, onClick, label, icon: Icon, className = "" })
     </motion.div>
 );
 
-const SimpleCard = ({ selected, onClick, label }) => (
+const SimpleCard = ({ selected, onClick, label, icon: Icon }) => (
     <motion.div
         whileHover={{ y: -2, boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)" }}
         whileTap={{ scale: 0.98 }}
         onClick={onClick}
         className={`
-            p-5 rounded-xl border cursor-pointer transition-all duration-200 flex items-center justify-center text-center font-medium text-lg
+            relative p-5 rounded-xl border cursor-pointer transition-all duration-200 flex flex-col items-center justify-center text-center font-medium text-lg h-full
             ${selected
-                ? 'border-primary bg-primary text-white shadow-md shadow-primary/20'
+                ? 'border-primary bg-white ring-2 ring-primary/20 shadow-md shadow-primary/10'
                 : 'bg-white border-slate-200 hover:border-primary/50 text-slate-600 hover:text-primary'}
         `}
     >
-        {label}
+        {Icon && (
+            <div className={`p-3 rounded-full mb-3 transition-colors duration-300 ${selected ? 'bg-primary/10' : 'bg-slate-50'} flex items-center justify-center`}>
+                <Icon className={`w-8 h-8 ${selected ? 'text-primary' : 'text-slate-400'}`} />
+            </div>
+        )}
+        <span className={`${selected ? 'text-primary font-semibold' : ''}`}>{label}</span>
+        {selected && (
+            <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="absolute top-2 right-2 text-primary"
+            >
+                <div className="bg-primary text-white rounded-full p-0.5">
+                    <Check size={10} strokeWidth={3} />
+                </div>
+            </motion.div>
+        )}
     </motion.div>
 );
 
@@ -99,12 +127,46 @@ export default function GetStarted() {
     const handleMultiSelect = (field, value) => {
         setFormData(prev => {
             const current = prev[field] || [];
-            if (current.includes(value)) {
-                return { ...prev, [field]: current.filter(item => item !== value) };
-            } else {
-                return { ...prev, [field]: [...current, value] };
-            }
+            const updated = current.includes(value)
+                ? current.filter(item => item !== value)
+                : [...current, value];
+            return { ...prev, [field]: updated };
         });
+    };
+
+    const US_STATES = [
+        { code: 'AL', name: 'Alabama' }, { code: 'AK', name: 'Alaska' }, { code: 'AZ', name: 'Arizona' }, { code: 'AR', name: 'Arkansas' }, { code: 'CA', name: 'California' },
+        { code: 'CO', name: 'Colorado' }, { code: 'CT', name: 'Connecticut' }, { code: 'DE', name: 'Delaware' }, { code: 'FL', name: 'Florida' }, { code: 'GA', name: 'Georgia' },
+        { code: 'HI', name: 'Hawaii' }, { code: 'ID', name: 'Idaho' }, { code: 'IL', name: 'Illinois' }, { code: 'IN', name: 'Indiana' }, { code: 'IA', name: 'Iowa' },
+        { code: 'KS', name: 'Kansas' }, { code: 'KY', name: 'Kentucky' }, { code: 'LA', name: 'Louisiana' }, { code: 'ME', name: 'Maine' }, { code: 'MD', name: 'Maryland' },
+        { code: 'MA', name: 'Massachusetts' }, { code: 'MI', name: 'Michigan' }, { code: 'MN', name: 'Minnesota' }, { code: 'MS', name: 'Mississippi' }, { code: 'MO', name: 'Missouri' },
+        { code: 'MT', name: 'Montana' }, { code: 'NE', name: 'Nebraska' }, { code: 'NV', name: 'Nevada' }, { code: 'NH', name: 'New Hampshire' }, { code: 'NJ', name: 'New Jersey' },
+        { code: 'NM', name: 'New Mexico' }, { code: 'NY', name: 'New York' }, { code: 'NC', name: 'North Carolina' }, { code: 'ND', name: 'North Dakota' }, { code: 'OH', name: 'Ohio' },
+        { code: 'OK', name: 'Oklahoma' }, { code: 'OR', name: 'Oregon' }, { code: 'PA', name: 'Pennsylvania' }, { code: 'RI', name: 'Rhode Island' }, { code: 'SC', name: 'South Carolina' },
+        { code: 'SD', name: 'South Dakota' }, { code: 'TN', name: 'Tennessee' }, { code: 'TX', name: 'Texas' }, { code: 'UT', name: 'Utah' }, { code: 'VT', name: 'Vermont' },
+        { code: 'VA', name: 'Virginia' }, { code: 'WA', name: 'Washington' }, { code: 'WV', name: 'West Virginia' }, { code: 'WI', name: 'Wisconsin' }, { code: 'WY', name: 'Wyoming' }
+    ];
+
+    const handleZipBlur = async (e) => {
+        const zip = e.target.value;
+        if (zip.length === 5) {
+            try {
+                const response = await fetch(`https://api.zippopotam.us/us/${zip}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setFormData(prev => ({
+                        ...prev,
+                        contact: {
+                            ...prev.contact,
+                            city: data.places[0]['place name'],
+                            state: data.places[0]['state abbreviation']
+                        }
+                    }));
+                }
+            } catch (error) {
+                console.error('Error fetching zip data:', error);
+            }
+        }
     };
 
     const handleDimensionChange = (index, field, value) => {
@@ -307,14 +369,30 @@ export default function GetStarted() {
                                                 <div className="space-y-10">
                                                     <h2 className="text-3xl md:text-4xl font-bold text-secondary text-center tracking-tight">Which shipping service(s) are you interested in?</h2>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                                                        {['Ground', 'Express', 'International', 'Others'].map((service) => (
-                                                            <SimpleCard
-                                                                key={service}
-                                                                label={service}
-                                                                selected={formData.services.includes(service)}
-                                                                onClick={() => handleMultiSelect('services', service)}
-                                                            />
-                                                        ))}
+                                                        <SimpleCard
+                                                            label="Ground"
+                                                            icon={Truck}
+                                                            selected={formData.services.includes('Ground')}
+                                                            onClick={() => handleMultiSelect('services', 'Ground')}
+                                                        />
+                                                        <SimpleCard
+                                                            label="Express"
+                                                            icon={Zap}
+                                                            selected={formData.services.includes('Express')}
+                                                            onClick={() => handleMultiSelect('services', 'Express')}
+                                                        />
+                                                        <SimpleCard
+                                                            label="International"
+                                                            icon={Globe}
+                                                            selected={formData.services.includes('International')}
+                                                            onClick={() => handleMultiSelect('services', 'International')}
+                                                        />
+                                                        <SimpleCard
+                                                            label="Others"
+                                                            icon={Package}
+                                                            selected={formData.services.includes('Others')}
+                                                            onClick={() => handleMultiSelect('services', 'Others')}
+                                                        />
                                                     </div>
                                                 </div>
                                             )}
@@ -387,14 +465,36 @@ export default function GetStarted() {
                                                 <div className="space-y-10">
                                                     <h2 className="text-3xl md:text-4xl font-bold text-secondary text-center tracking-tight">Your typical shipment weights (lb)?</h2>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                                                        {['<1', '1-10', '10-20', '20-40', '>50'].map((weight) => (
-                                                            <SimpleCard
-                                                                key={weight}
-                                                                label={weight}
-                                                                selected={formData.weightRange.includes(weight)}
-                                                                onClick={() => handleMultiSelect('weightRange', weight)}
-                                                            />
-                                                        ))}
+                                                        <SimpleCard
+                                                            label="<1"
+                                                            icon={Feather}
+                                                            selected={formData.weightRange.includes('<1')}
+                                                            onClick={() => handleMultiSelect('weightRange', '<1')}
+                                                        />
+                                                        <SimpleCard
+                                                            label="1-10"
+                                                            icon={Package}
+                                                            selected={formData.weightRange.includes('1-10')}
+                                                            onClick={() => handleMultiSelect('weightRange', '1-10')}
+                                                        />
+                                                        <SimpleCard
+                                                            label="10-20"
+                                                            icon={Box}
+                                                            selected={formData.weightRange.includes('10-20')}
+                                                            onClick={() => handleMultiSelect('weightRange', '10-20')}
+                                                        />
+                                                        <SimpleCard
+                                                            label="20-50"
+                                                            icon={Dumbbell}
+                                                            selected={formData.weightRange.includes('20-50')}
+                                                            onClick={() => handleMultiSelect('weightRange', '20-50')}
+                                                        />
+                                                        <SimpleCard
+                                                            label=">50"
+                                                            icon={Container}
+                                                            selected={formData.weightRange.includes('>50')}
+                                                            onClick={() => handleMultiSelect('weightRange', '>50')}
+                                                        />
                                                     </div>
                                                 </div>
                                             )}
@@ -419,14 +519,30 @@ export default function GetStarted() {
                                                 <div className="space-y-10">
                                                     <h2 className="text-3xl md:text-4xl font-bold text-secondary text-center tracking-tight">Shipment Volume Per Week?</h2>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                                                        {['1-10', '10-100', '>100', 'Others'].map((vol) => (
-                                                            <SimpleCard
-                                                                key={vol}
-                                                                label={vol}
-                                                                selected={formData.volumePerWeek === vol}
-                                                                onClick={() => handleSingleSelect('volumePerWeek', vol)}
-                                                            />
-                                                        ))}
+                                                        <SimpleCard
+                                                            label="1-10"
+                                                            icon={Package}
+                                                            selected={formData.volumePerWeek === '1-10'}
+                                                            onClick={() => handleSingleSelect('volumePerWeek', '1-10')}
+                                                        />
+                                                        <SimpleCard
+                                                            label="10-100"
+                                                            icon={Layers}
+                                                            selected={formData.volumePerWeek === '10-100'}
+                                                            onClick={() => handleSingleSelect('volumePerWeek', '10-100')}
+                                                        />
+                                                        <SimpleCard
+                                                            label=">100"
+                                                            icon={Warehouse}
+                                                            selected={formData.volumePerWeek === '>100'}
+                                                            onClick={() => handleSingleSelect('volumePerWeek', '>100')}
+                                                        />
+                                                        <SimpleCard
+                                                            label="Others"
+                                                            icon={Package}
+                                                            selected={formData.volumePerWeek === 'Others'}
+                                                            onClick={() => handleSingleSelect('volumePerWeek', 'Others')}
+                                                        />
                                                     </div>
                                                 </div>
                                             )}
@@ -437,28 +553,60 @@ export default function GetStarted() {
                                                     <div className="max-w-3xl mx-auto">
                                                         <h2 className="text-xl font-bold text-slate-400 uppercase tracking-wider mb-6 text-center">Current Carrier (Select all that apply)</h2>
                                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                                            {['FedEx', 'UPS', 'USPS', 'Others'].map((carrier) => (
-                                                                <SimpleCard
-                                                                    key={`curr-${carrier}`}
-                                                                    label={carrier}
-                                                                    selected={formData.currentCarrier.includes(carrier)}
-                                                                    onClick={() => handleMultiSelect('currentCarrier', carrier)}
-                                                                />
-                                                            ))}
+                                                            <SimpleCard
+                                                                label="FedEx"
+                                                                icon={FedExLogo}
+                                                                selected={formData.currentCarrier.includes('FedEx')}
+                                                                onClick={() => handleMultiSelect('currentCarrier', 'FedEx')}
+                                                            />
+                                                            <SimpleCard
+                                                                label="UPS"
+                                                                icon={UPSLogo}
+                                                                selected={formData.currentCarrier.includes('UPS')}
+                                                                onClick={() => handleMultiSelect('currentCarrier', 'UPS')}
+                                                            />
+                                                            <SimpleCard
+                                                                label="USPS"
+                                                                icon={USPSLogo}
+                                                                selected={formData.currentCarrier.includes('USPS')}
+                                                                onClick={() => handleMultiSelect('currentCarrier', 'USPS')}
+                                                            />
+                                                            <SimpleCard
+                                                                label="Others"
+                                                                icon={Truck}
+                                                                selected={formData.currentCarrier.includes('Others')}
+                                                                onClick={() => handleMultiSelect('currentCarrier', 'Others')}
+                                                            />
                                                         </div>
                                                     </div>
 
                                                     <div className="max-w-3xl mx-auto">
                                                         <h2 className="text-xl font-bold text-slate-400 uppercase tracking-wider mb-6 text-center">Preferred Carrier (Select all that apply)</h2>
                                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                                            {['FedEx', 'UPS', 'USPS', 'Others'].map((carrier) => (
-                                                                <SimpleCard
-                                                                    key={`pref-${carrier}`}
-                                                                    label={carrier}
-                                                                    selected={formData.preferredCarrier.includes(carrier)}
-                                                                    onClick={() => handleMultiSelect('preferredCarrier', carrier)}
-                                                                />
-                                                            ))}
+                                                            <SimpleCard
+                                                                label="FedEx"
+                                                                icon={FedExLogo}
+                                                                selected={formData.preferredCarrier.includes('FedEx')}
+                                                                onClick={() => handleMultiSelect('preferredCarrier', 'FedEx')}
+                                                            />
+                                                            <SimpleCard
+                                                                label="UPS"
+                                                                icon={UPSLogo}
+                                                                selected={formData.preferredCarrier.includes('UPS')}
+                                                                onClick={() => handleMultiSelect('preferredCarrier', 'UPS')}
+                                                            />
+                                                            <SimpleCard
+                                                                label="USPS"
+                                                                icon={USPSLogo}
+                                                                selected={formData.preferredCarrier.includes('USPS')}
+                                                                onClick={() => handleMultiSelect('preferredCarrier', 'USPS')}
+                                                            />
+                                                            <SimpleCard
+                                                                label="Others"
+                                                                icon={Truck}
+                                                                selected={formData.preferredCarrier.includes('Others')}
+                                                                onClick={() => handleMultiSelect('preferredCarrier', 'Others')}
+                                                            />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -469,14 +617,30 @@ export default function GetStarted() {
                                                 <div className="space-y-10">
                                                     <h2 className="text-3xl md:text-4xl font-bold text-secondary text-center tracking-tight">Do you have your own account with the carrier?</h2>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                                                        {['No', 'Yes and with account executive', 'Yes but no account executive', 'Not sure'].map((status) => (
-                                                            <SimpleCard
-                                                                key={status}
-                                                                label={status}
-                                                                selected={formData.accountStatus === status}
-                                                                onClick={() => handleSingleSelect('accountStatus', status)}
-                                                            />
-                                                        ))}
+                                                        <SimpleCard
+                                                            label="No"
+                                                            icon={UserX}
+                                                            selected={formData.accountStatus === 'No'}
+                                                            onClick={() => handleSingleSelect('accountStatus', 'No')}
+                                                        />
+                                                        <SimpleCard
+                                                            label="Yes and with account executive"
+                                                            icon={UserCheck}
+                                                            selected={formData.accountStatus === 'Yes and with account executive'}
+                                                            onClick={() => handleSingleSelect('accountStatus', 'Yes and with account executive')}
+                                                        />
+                                                        <SimpleCard
+                                                            label="Yes but no account executive"
+                                                            icon={User}
+                                                            selected={formData.accountStatus === 'Yes but no account executive'}
+                                                            onClick={() => handleSingleSelect('accountStatus', 'Yes but no account executive')}
+                                                        />
+                                                        <SimpleCard
+                                                            label="Not sure"
+                                                            icon={Info}
+                                                            selected={formData.accountStatus === 'Not sure'}
+                                                            onClick={() => handleSingleSelect('accountStatus', 'Not sure')}
+                                                        />
                                                     </div>
                                                 </div>
                                             )}
@@ -494,8 +658,36 @@ export default function GetStarted() {
                                                         </div>
                                                         <InputField label="City *" required type="text" name="city" value={formData.contact.city} onChange={handleContactChange} />
                                                         <div className="grid grid-cols-2 gap-6">
-                                                            <InputField label="State *" required type="text" name="state" value={formData.contact.state} onChange={handleContactChange} />
-                                                            <InputField label="Zip *" required type="text" name="zip" value={formData.contact.zip} onChange={handleContactChange} />
+                                                            <div className="group">
+                                                                <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1 transition-colors group-focus-within:text-primary">State *</label>
+                                                                <div className="relative">
+                                                                    <select
+                                                                        name="state"
+                                                                        value={formData.contact.state}
+                                                                        onChange={handleContactChange}
+                                                                        required
+                                                                        className="w-full px-5 py-3.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all duration-200 appearance-none cursor-pointer"
+                                                                    >
+                                                                        <option value="">Select State</option>
+                                                                        {US_STATES.map((state) => (
+                                                                            <option key={state.code} value={state.code}>{state.code} - {state.name}</option>
+                                                                        ))}
+                                                                    </select>
+                                                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                                                        <ChevronLeft size={16} className="-rotate-90" />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <InputField
+                                                                label="Zip *"
+                                                                required
+                                                                type="text"
+                                                                name="zip"
+                                                                value={formData.contact.zip}
+                                                                onChange={handleContactChange}
+                                                                onBlur={handleZipBlur}
+                                                                maxLength={5}
+                                                            />
                                                         </div>
                                                         <InputField label="Phone *" required type="tel" name="phone" value={formData.contact.phone} onChange={handleContactChange} />
                                                         <InputField label="Email *" required type="email" name="email" value={formData.contact.email} onChange={handleContactChange} />
